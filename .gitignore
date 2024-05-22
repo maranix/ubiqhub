@@ -23,3 +23,6 @@ go.work.sum
 
 # Out binary directory
 cmd/
+
+*.env
+!.env.example
