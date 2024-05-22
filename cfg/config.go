@@ -6,6 +6,7 @@ import (
 )
 
 type Config struct {
+	Env    string `json:"env"`
 	Server Server `json:"server"`
 }
 
@@ -17,10 +18,12 @@ type Server struct {
 const (
 	host = "HOST"
 	port = "PORT"
+	env  = "ENV"
 )
 
-func create(addr string, p string) *Config {
+func create(env, addr, p string) *Config {
 	return &Config{
+		Env: env,
 		Server: Server{
 			Host: addr,
 			Port: p,
@@ -38,8 +41,9 @@ func envVar(key string, args map[string]string) string {
 }
 
 func FromArgs(args map[string]string) *Config {
+	env := envVar(env, args)
 	host := envVar(host, args)
 	port := envVar(port, args)
 
-	return create(host, port)
+	return create(env, host, port)
 }
