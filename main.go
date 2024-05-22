@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 
@@ -28,6 +29,26 @@ func init() {
 	}
 }
 
+func main() {
+	w := os.Stderr
+	ctx := context.Background()
+
+	logger := createLogger(w)
+
+	args, err := readEnvFile(env)
+	if err != nil {
+		fmt.Fprintf(w, "Could not read env file: %s\n", err)
+		os.Exit(1)
+	}
+	config := cfg.FromArgs(args)
+
+	srv := server.CreateNewServer(logger, config)
+	if err := server.Run(ctx, logger, srv); err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		os.Exit(1)
+	}
+}
+
 func readEnvFile(filenames ...string) (map[string]string, error) {
 	args, err := godotenv.Read(filenames...)
 	if err != nil {
@@ -37,20 +58,17 @@ func readEnvFile(filenames ...string) (map[string]string, error) {
 	return args, nil
 }
 
-func main() {
-	ctx := context.Background()
-	logger := slog.Default()
+func createLogger(w io.Writer) *slog.Logger {
+	logLevel := new(slog.LevelVar)
+	handler := slog.NewTextHandler(w, &slog.HandlerOptions{
+		Level: logLevel,
+	})
 
-	args, err := readEnvFile(env)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Could not read env file: %s\n", err)
-		os.Exit(1)
-	}
-	config := cfg.FromArgs(args)
+	slog.SetDefault(slog.New(handler))
 
-	srv := server.CreateNewServer(logger, config)
-	if err := server.Run(ctx, logger, srv); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
+	if releaseFlag {
+		logLevel.Set(slog.LevelError)
 	}
+
+	return slog.Default()
 }
