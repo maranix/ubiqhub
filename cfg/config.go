@@ -6,5 +6,5 @@ type Config struct {
 
 type Server struct {
 	Host string `json:"host"`
-	Port string `json:"post"`
+	Port string `json:"port"`
 }
