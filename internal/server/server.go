@@ -20,7 +20,7 @@ func newServer(logger *slog.Logger, cfg *cfg.Config) *http.Server {
 	handler = middleware.LoggingMiddleware(logger, handler)
 
 	server := &http.Server{
-		Addr:    net.JoinHostPort("127.0.0.1", "6969"),
+		Addr:    net.JoinHostPort(cfg.Server.Host, cfg.Server.Port),
 		Handler: handler,
 	}
 
