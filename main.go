@@ -14,10 +14,20 @@ func main() {
 	stderr := os.Stderr
 	ctx := context.Background()
 	logger := slog.Default()
+
+	host, ok := os.LookupEnv("HOST")
+	if !ok {
+		host = "0.0.0.0"
+	}
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		port = "6969"
+	}
+
 	config := cfg.Config{
 		Server: cfg.Server{
-			Host: "127.0.0.1",
-			Port: "6969",
+			Host: host,
+			Port: port,
 		},
 	}
 
