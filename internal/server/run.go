@@ -24,7 +24,6 @@ func gracefulShutdown(
 	defer wg.Done()
 	<-ctx.Done()
 
-	// make a new context for the Shutdown (thanks Alessandro Rosetti)
 	shutdownCtx := context.Background()
 	shutdownCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -42,8 +41,7 @@ func run(ctx context.Context, logger *slog.Logger, server *http.Server) error {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	go func() {
-	}()
+	go gracefulShutdown(ctx, logger, server, &wg)
 	wg.Wait()
 
 	return nil
